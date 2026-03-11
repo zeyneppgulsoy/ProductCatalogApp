@@ -196,7 +196,15 @@ class _HomePageState extends State<HomePage> {
                   decoration: const InputDecoration(
                     hintText: 'Search products',
                     prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(16)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(16)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(16)),
+                    ),
                     isDense: true,
                   ),
                 ),
