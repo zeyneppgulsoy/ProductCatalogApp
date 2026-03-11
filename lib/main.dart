@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'models/product.dart';
+import 'screens/cart_page.dart';
 import 'screens/product_detail_page.dart';
 import 'widgets/product_card.dart';
 
@@ -36,6 +37,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<List<Product>> productsFuture;
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  String selectedFilter = 'all';
+  List<Product> cartItems = [];
+
+  Future<void> _openCartPage() async {
+    final updatedItems = await Navigator.push<List<Product>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CartPage(initialItems: cartItems),
+      ),
+    );
+
+    if (updatedItems != null) {
+      setState(() {
+        cartItems = updatedItems;
+      });
+    }
+  }
 
   Future<Map<String, dynamic>> _fetchJson(String url) async {
     final httpClient = HttpClient();
@@ -76,6 +95,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -92,11 +112,19 @@ class _HomePageState extends State<HomePage> {
     final tabletsData = responses[1];
 
     final laptops = (laptopsData['products'] as List)
-        .map((item) => Product.fromJson(item as Map<String, dynamic>))
+        .map(
+          (item) => Product.fromJson(
+            (item as Map<String, dynamic>)..['category'] = 'laptop',
+          ),
+        )
         .toList();
 
     final tablets = (tabletsData['products'] as List)
-        .map((item) => Product.fromJson(item as Map<String, dynamic>))
+        .map(
+          (item) => Product.fromJson(
+            (item as Map<String, dynamic>)..['category'] = 'tablet',
+          ),
+        )
         .toList();
 
     return [...laptops, ...tablets];
@@ -105,7 +133,18 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product Catalog')),
+      appBar: AppBar(
+        title: const Text('Product Catalog'),
+        actions: [
+          IconButton(
+            onPressed: _openCartPage,
+            icon: Badge.count(
+              count: cartItems.length,
+              child: const Icon(Icons.shopping_cart_outlined),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -138,40 +177,103 @@ class _HomePageState extends State<HomePage> {
             return const Center(child: Text('No products found'));
           }
 
-          return Scrollbar(
-            controller: _scrollController,
-            thumbVisibility: true,
-            thickness: 6,
-            radius: const Radius.circular(10),
-            interactive: true,
-            child: GridView.builder(
-              controller: _scrollController,
-              physics: const ClampingScrollPhysics(),
-              cacheExtent: 900,
-              padding: const EdgeInsets.all(8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 0.72,
+          final query = _searchController.text.trim().toLowerCase();
+          final filteredProducts = products.where((product) {
+            final matchName = product.name.toLowerCase().contains(query);
+            final matchCategory = selectedFilter == 'all'
+                ? true
+                : product.category == selectedFilter;
+            return matchName && matchCategory;
+          }).toList();
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (_) => setState(() {}),
+                  decoration: const InputDecoration(
+                    hintText: 'Search products',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                ),
               ),
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                return ProductCard(
-                  product: products[index],
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailPage(
-                          product: products[index],
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    ChoiceChip(
+                      label: const Text('All'),
+                      selected: selectedFilter == 'all',
+                      onSelected: (_) => setState(() => selectedFilter = 'all'),
+                    ),
+                    const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: const Text('Laptops'),
+                      selected: selectedFilter == 'laptop',
+                      onSelected: (_) =>
+                          setState(() => selectedFilter = 'laptop'),
+                    ),
+                    const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: const Text('Tablets'),
+                      selected: selectedFilter == 'tablet',
+                      onSelected: (_) =>
+                          setState(() => selectedFilter = 'tablet'),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Scrollbar(
+                  controller: _scrollController,
+                  thumbVisibility: true,
+                  thickness: 6,
+                  radius: const Radius.circular(10),
+                  interactive: true,
+                  child: GridView.builder(
+                    controller: _scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    cacheExtent: 900,
+                    padding: const EdgeInsets.all(8),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 0.72,
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                    itemCount: filteredProducts.length,
+                    itemBuilder: (context, index) {
+                      return ProductCard(
+                        product: filteredProducts[index],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailPage(
+                                product: filteredProducts[index],
+                                onAddToCart: () {
+                                  setState(() {
+                                    cartItems.add(filteredProducts[index]);
+                                  });
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),

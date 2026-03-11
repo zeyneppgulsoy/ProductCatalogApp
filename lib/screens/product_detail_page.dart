@@ -4,8 +4,13 @@ import '../models/product.dart';
 // Product detail page - Display selected product information
 class ProductDetailPage extends StatelessWidget {
   final Product product;
+  final VoidCallback onAddToCart;
 
-  const ProductDetailPage({super.key, required this.product});
+  const ProductDetailPage({
+    super.key,
+    required this.product,
+    required this.onAddToCart,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +60,12 @@ class ProductDetailPage extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  onAddToCart();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Added to cart')),
+                  );
+                },
                 child: const Text('Add to Cart'),
               ),
             ),
