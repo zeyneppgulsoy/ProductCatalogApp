@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'models/product.dart';
+import 'screens/product_detail_page.dart';
 import 'widgets/product_card.dart';
 
 void main() {
@@ -156,7 +157,19 @@ class _HomePageState extends State<HomePage> {
               ),
               itemCount: products.length,
               itemBuilder: (context, index) {
-                return ProductCard(product: products[index]);
+                return ProductCard(
+                  product: products[index],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailPage(
+                          product: products[index],
+                        ),
+                      ),
+                    );
+                  },
+                );
               },
             ),
           );
