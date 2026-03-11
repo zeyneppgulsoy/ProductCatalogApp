@@ -188,24 +188,35 @@ class _HomePageState extends State<HomePage> {
 
           return Column(
             children: [
+              const SizedBox(height: 12),
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    hintText: 'Search products',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                child: Material(
+                  elevation: 3,
+                  shadowColor: Colors.black12,
+                  borderRadius: BorderRadius.circular(18),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(
+                      hintText: 'Search products',
+                      prefixIcon: Icon(Icons.search),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(18)),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(18)),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(18)),
+                        borderSide: BorderSide(color: Colors.blueAccent),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 18),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
-                    ),
-                    isDense: true,
                   ),
                 ),
               ),
@@ -214,24 +225,36 @@ class _HomePageState extends State<HomePage> {
                   horizontal: 12,
                   vertical: 8,
                 ),
-                child: Row(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     ChoiceChip(
                       label: const Text('All'),
                       selected: selectedFilter == 'all',
+                      showCheckmark: false,
+                      selectedColor: const Color(0xFFDCEBFF),
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFFD7DCE3)),
                       onSelected: (_) => setState(() => selectedFilter = 'all'),
                     ),
-                    const SizedBox(width: 8),
                     ChoiceChip(
                       label: const Text('Laptops'),
                       selected: selectedFilter == 'laptop',
+                      showCheckmark: false,
+                      selectedColor: const Color(0xFFDCEBFF),
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFFD7DCE3)),
                       onSelected: (_) =>
                           setState(() => selectedFilter = 'laptop'),
                     ),
-                    const SizedBox(width: 8),
                     ChoiceChip(
                       label: const Text('Tablets'),
                       selected: selectedFilter == 'tablet',
+                      showCheckmark: false,
+                      selectedColor: const Color(0xFFDCEBFF),
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFFD7DCE3)),
                       onSelected: (_) =>
                           setState(() => selectedFilter = 'tablet'),
                     ),

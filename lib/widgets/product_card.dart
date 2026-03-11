@@ -11,6 +11,9 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withValues(alpha: 0.10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -45,11 +48,18 @@ class ProductCard extends StatelessWidget {
                     product.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     '\$${product.price}',
-                    style: const TextStyle(color: Colors.blue),
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
