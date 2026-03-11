@@ -10,24 +10,27 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(8),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product image placeholder
-          Container(
-            height: 120,
-            width: double.infinity,
-            color: Colors.grey[300],
-            child: product.image.isNotEmpty
-                ? Image.network(
-                    product.image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.broken_image, size: 50);
-                    },
-                  )
-                : const Icon(Icons.image, size: 50),
+          // Product image area
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              color: Colors.grey[200],
+              child: product.image.isNotEmpty
+                  ? Image.network(
+                      product.image,
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.low,
+                      cacheWidth: 320,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.broken_image, size: 42);
+                      },
+                    )
+                  : const Icon(Icons.image, size: 42),
+            ),
           ),
           // Product info
           Padding(
@@ -37,6 +40,8 @@ class ProductCard extends StatelessWidget {
               children: [
                 Text(
                   product.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(

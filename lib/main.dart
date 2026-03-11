@@ -34,11 +34,31 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<Product>> productsFuture;
+  final ScrollController _scrollController = ScrollController();
+
+  void _scrollBy(double offset) {
+    if (!_scrollController.hasClients) return;
+    final target = (_scrollController.offset + offset).clamp(
+      0.0,
+      _scrollController.position.maxScrollExtent,
+    );
+    _scrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOut,
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     productsFuture = fetchProducts();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<List<Product>> fetchProducts() async {
@@ -72,6 +92,22 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Product Catalog')),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.small(
+            heroTag: 'scroll_up',
+            onPressed: () => _scrollBy(-320),
+            child: const Icon(Icons.keyboard_arrow_up),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton.small(
+            heroTag: 'scroll_down',
+            onPressed: () => _scrollBy(320),
+            child: const Icon(Icons.keyboard_arrow_down),
+          ),
+        ],
+      ),
       body: FutureBuilder<List<Product>>(
         future: productsFuture,
         builder: (context, snapshot) {
@@ -88,14 +124,28 @@ class _HomePageState extends State<HomePage> {
             return const Center(child: Text('No products found'));
           }
 
-          return ListView.builder(
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              return SizedBox(
-                height: 200,
-                child: ProductCard(product: products[index]),
-              );
-            },
+          return Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: true,
+            thickness: 6,
+            radius: const Radius.circular(10),
+            interactive: true,
+            child: GridView.builder(
+              controller: _scrollController,
+              physics: const ClampingScrollPhysics(),
+              cacheExtent: 900,
+              padding: const EdgeInsets.all(8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 0.72,
+              ),
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                return ProductCard(product: products[index]);
+              },
+            ),
           );
         },
       ),
