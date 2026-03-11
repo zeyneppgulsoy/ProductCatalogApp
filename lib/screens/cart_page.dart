@@ -23,9 +23,7 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cart'),
-      ),
+      appBar: AppBar(title: const Text('Cart')),
       body: cartItems.isEmpty
           ? const Center(child: Text('Your cart is empty'))
           : ListView.separated(
@@ -41,7 +39,11 @@ class _CartPageState extends State<CartPage> {
                         ? Image.network(item.image, fit: BoxFit.contain)
                         : const Icon(Icons.image),
                   ),
-                  title: Text(item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  title: Text(
+                    item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   subtitle: Text('\$${item.price}'),
                   trailing: IconButton(
                     icon: const Icon(Icons.remove_circle_outline),
