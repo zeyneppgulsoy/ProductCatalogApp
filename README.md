@@ -1,17 +1,18 @@
-# productcatalogapp
+# Product Catalog App
 
-A new Flutter project.
+## Description
+This project is a product catalog application developed as part of my internship. Products are fetched from an API and displayed in a grid layout. The app includes search and category filtering, a product detail page, and basic cart actions.
 
-## Getting Started
+## Flutter Version
+Flutter 3.x
 
-This project is a starting point for a Flutter application.
+## Run Steps
+1. flutter pub get
+2. flutter run
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Features
+- Fetch products from API
+- Grid-based product listing
+- Search and category filtering
+- Product detail page
+- Add to cart / remove from cart
