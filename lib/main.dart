@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'models/product.dart';
 import 'widgets/product_card.dart';
 
@@ -36,6 +36,23 @@ class _HomePageState extends State<HomePage> {
   late Future<List<Product>> productsFuture;
   final ScrollController _scrollController = ScrollController();
 
+  Future<Map<String, dynamic>> _fetchJson(String url) async {
+    final httpClient = HttpClient();
+    try {
+      final request = await httpClient.getUrl(Uri.parse(url));
+      final response = await request.close();
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to load products');
+      }
+
+      final responseBody = await response.transform(utf8.decoder).join();
+      return jsonDecode(responseBody) as Map<String, dynamic>;
+    } finally {
+      httpClient.close(force: true);
+    }
+  }
+
   void _scrollBy(double offset) {
     if (!_scrollController.hasClients) return;
     final target = (_scrollController.offset + offset).clamp(
@@ -65,17 +82,13 @@ class _HomePageState extends State<HomePage> {
     const laptopsUrl = 'https://dummyjson.com/products/category/laptops';
     const tabletsUrl = 'https://dummyjson.com/products/category/tablets';
 
-    final responses = await Future.wait([
-      http.get(Uri.parse(laptopsUrl)),
-      http.get(Uri.parse(tabletsUrl)),
+    final responses = await Future.wait<Map<String, dynamic>>([
+      _fetchJson(laptopsUrl),
+      _fetchJson(tabletsUrl),
     ]);
 
-    if (responses[0].statusCode != 200 || responses[1].statusCode != 200) {
-      throw Exception('Failed to load products');
-    }
-
-    final laptopsData = jsonDecode(responses[0].body) as Map<String, dynamic>;
-    final tabletsData = jsonDecode(responses[1].body) as Map<String, dynamic>;
+    final laptopsData = responses[0];
+    final tabletsData = responses[1];
 
     final laptops = (laptopsData['products'] as List)
         .map((item) => Product.fromJson(item as Map<String, dynamic>))
