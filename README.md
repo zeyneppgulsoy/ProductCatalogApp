@@ -1,5 +1,6 @@
 # Product Catalog App
 
+
 ## Description
 This project is a product catalog application developed as part of my internship. Products are fetched from an API and displayed in a grid layout. The app includes search and category filtering, a product detail page, and basic cart actions.
 
