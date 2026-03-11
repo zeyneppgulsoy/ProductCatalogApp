@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'models/product.dart';
 import 'widgets/product_card.dart';
 
@@ -23,26 +25,77 @@ class ProductCatalogApp extends StatelessWidget {
 }
 
 // Home page
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Sample products
-    final products = [
-      Product(name: 'Laptop Pro', price: 1299.99, image: ''),
-      Product(name: 'Tablet Plus', price: 599.99, image: ''),
-      Product(name: 'Smart Phone', price: 899.99, image: ''),
-    ];
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  late Future<List<Product>> productsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    productsFuture = fetchProducts();
+  }
+
+  Future<List<Product>> fetchProducts() async {
+    const laptopsUrl = 'https://dummyjson.com/products/category/laptops';
+    const tabletsUrl = 'https://dummyjson.com/products/category/tablets';
+
+    final responses = await Future.wait([
+      http.get(Uri.parse(laptopsUrl)),
+      http.get(Uri.parse(tabletsUrl)),
+    ]);
+
+    if (responses[0].statusCode != 200 || responses[1].statusCode != 200) {
+      throw Exception('Failed to load products');
+    }
+
+    final laptopsData = jsonDecode(responses[0].body) as Map<String, dynamic>;
+    final tabletsData = jsonDecode(responses[1].body) as Map<String, dynamic>;
+
+    final laptops = (laptopsData['products'] as List)
+        .map((item) => Product.fromJson(item as Map<String, dynamic>))
+        .toList();
+
+    final tablets = (tabletsData['products'] as List)
+        .map((item) => Product.fromJson(item as Map<String, dynamic>))
+        .toList();
+
+    return [...laptops, ...tablets];
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Product Catalog')),
-      body: ListView.builder(
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          return SizedBox(
-            height: 200,
-            child: ProductCard(product: products[index]),
+      body: FutureBuilder<List<Product>>(
+        future: productsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return const Center(child: Text('Failed to load products'));
+          }
+
+          final products = snapshot.data ?? [];
+          if (products.isEmpty) {
+            return const Center(child: Text('No products found'));
+          }
+
+          return ListView.builder(
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              return SizedBox(
+                height: 200,
+                child: ProductCard(product: products[index]),
+              );
+            },
           );
         },
       ),

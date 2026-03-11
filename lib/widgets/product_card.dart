@@ -19,7 +19,15 @@ class ProductCard extends StatelessWidget {
             height: 120,
             width: double.infinity,
             color: Colors.grey[300],
-            child: const Icon(Icons.image, size: 50),
+            child: product.image.isNotEmpty
+                ? Image.network(
+                    product.image,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.broken_image, size: 50);
+                    },
+                  )
+                : const Icon(Icons.image, size: 50),
           ),
           // Product info
           Padding(
