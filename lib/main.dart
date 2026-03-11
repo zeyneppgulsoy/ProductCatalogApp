@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
                 child: TextField(
                   controller: _searchController,
                   onChanged: (_) => setState(() {}),
